@@ -1,0 +1,1 @@
+An animation shows flights in Europe. One plane is represented by one white point. The animation uses radar information. It also uses flight plans. Both information is from summer 2013. There are 30,000 flights across Europe every day. You can see two London airports in the video. One day, 5,675 planes came and left British airports.
