@@ -47,7 +47,7 @@ def zero_loss(y_true, y_pred):
 np.random.seed(7)
 # load the dataset but only keep the top n words, zero the rest
 top_words = 5500
-#(X_train, y_train), (X_test, y_test) = imdb.load_data(nb_words=top_words)
+#(X_train, y_train), (X_test, y_test) = imdb.load_data(nb_words = top_words)
 
 # Se carga la data
 dataframe = read_csv('outcome.csv', engine='python')
@@ -61,17 +61,18 @@ dataframe = dataframe.sample(frac=1)
 # se dividen la dataset en 80% para entrenamiento
 # y 20% para prueba
 
-X 				 				 = np.array(dataframe.drop(['179'], axis = 1))
-y 				 				 = np.array(dataframe['179'])
-labelencoder_y_1 				 = LabelEncoder()
-y 				 				 = labelencoder_y_1.fit_transform(y)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=42)
-
-categoricalTrainY 				 = to_categorical(y_train, num_classes=None)
-categoricalTestY  				 = to_categorical(y_test, num_classes=None)
+X 				 				                =  np.array(dataframe.drop(['179'], axis = 1))
+y 				 				                = np.array(dataframe['179'])
+#print(y)
+#labelencoder_y_1 	                = LabelEncoder()
+#y 				 				                = labelencoder_y_1.fit_transform(y)
 
 
 
+X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.10, random_state=42)
+
+categoricalTrainY 				        = to_categorical(y_train, num_classes=None)
+categoricalTestY  				        = to_categorical(y_test, num_classes=None)
 
 #y_train = np.array(y_train, dtype = float)
 #y_train = np.reshape(-1, 11)
@@ -144,7 +145,7 @@ model.add(LSTM(4,
 model.add(BatchNormalization(momentum=0.99, epsilon=0.001, center=True, 
                                    scale=True, beta_initializer='zeros', gamma_initializer='ones', moving_mean_initializer='zeros', moving_variance_initializer='ones'))
 
-model.add(Dense(3, activation='softmax', kernel_initializer = 'he_normal'))
+model.add(Dense(4, activation='softmax', kernel_initializer = 'he_normal'))
 print (model.summary())
 
 opt  = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
@@ -154,19 +155,22 @@ opt4 = optimizers.Nadam(lr=0.002, beta_1=0.9, beta_2=0.999, epsilon=None, schedu
 sgd  = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 
 # do not use logcosh as loss value
-# better use binary_crossentropy
-model.compile(loss='binary_crossentropy', optimizer='adam' , metrics=['accuracy'], weighted_metrics=['accuracy'])
-print(model.summary())
+# better use binary_crossentropy with adam
+# we used: mean_squared_error with sgd
+# mean_absolute_error
 
-early_stopping_monitor = EarlyStopping(patience=3)
+model.compile(loss = 'binary_crossentropy', optimizer = opt2 , metrics = ['accuracy'], weighted_metrics = ['accuracy'])
+#print(model.summary())
 
-model.fit(X_train, categoricalTrainY, validation_split=0.10, epochs=50, batch_size=420, callbacks=[early_stopping_monitor])
+early_stopping_monitor = EarlyStopping(patience = 3)
+
+model.fit(X_train, categoricalTrainY, validation_split = 0.10, epochs = 50, batch_size = 420, callbacks = [early_stopping_monitor])
 # Final evaluation of the model
-scores = model.evaluate(X_test, categoricalTestY, verbose=1)
-#print("Accuracy: %.2f%%" % (scores[1]*100))
-#print(scores)
+scores = model.evaluate(X_test, categoricalTestY  , verbose = 1)
+print("Accuracy: %.2f%%" % (scores[1]*100))
+print(scores)
 print(scores[1]*100)
-# print model.predict(X_test)
+#print(model.predict(X_test))
 
 """
 clf             = MLPClassifier(hidden_layer_sizes=(50,), max_iter=10, alpha=1e-4,

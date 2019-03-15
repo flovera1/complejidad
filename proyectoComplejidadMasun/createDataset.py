@@ -181,23 +181,7 @@ def calculate_len(codifiedList0):
 			max = local_max
 
 	return max
-"""
-def normalize(listOfList):
-	
-	returnlist = []
 
-	
-	for sublist in listOfList:
-		newlist = []
-		norm    = computeTotalPOS(sublist)
-		for i in sublist:
-			elem = i / norm
-			newlist.append(elem)
-
-		returnlist.append(newlist)
-
-	return returnlist
-"""
 
 def main():
 	#script. Main?
@@ -341,17 +325,31 @@ def main():
 	liLocal1 = calculate_len(codifiedList1)
 	liLocal2 = calculate_len(codifiedList2)
 	li 		 = max(liLocal0, liLocal1, liLocal2)
-	addLabelAtTheEnd(codifiedList0, 1.0, (li/factor))
+	#before we were adding a factor that said: (li/factor).
+	#now we obly use 1.
+	#addLabelAtTheEnd(codifiedList0, 1.0, 1)
 
 	
 	li = calculate_len(codifiedList1)
-	addLabelAtTheEnd(codifiedList1, 2.0, (li/factor))
+	#addLabelAtTheEnd(codifiedList1, 2.0, 1)
 
 
 	
 	li = calculate_len(codifiedList2)
-	addLabelAtTheEnd(codifiedList2, 3.0, (li/factor))
+	#addLabelAtTheEnd(codifiedList2, 3.0, 1)
 	
+	addLabelAtTheEnd2(codifiedList0, 1)
+	addLabelAtTheEnd2(codifiedList1, 2)
+	addLabelAtTheEnd2(codifiedList2, 3)
+
+
+
+
+
+
+
+
+
 	#codifiedList0 = addLabelAtTheEnd(codifiedList0, 1.0, factor)#
 	#codifiedList1 = addLabelAtTheEnd(codifiedList1, 2.0, factor)#
 	#codifiedList2 = addLabelAtTheEnd(codifiedList2, 3.0, factor)#
