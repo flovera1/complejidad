@@ -104,12 +104,13 @@ embedding_vector_length = 179
 model = Sequential()
 model.add(Embedding(top_words, embedding_vector_length, input_length=179))
 
-model.add(LSTM(4,stateful=False,
+model.add(LSTM(4,return_sequences = True,
+                stateful=False,
                       kernel_initializer='he_normal',
                       activation='tanh',
                       dropout = 0.1 , 
                       recurrent_dropout = 0.1 ))
-"""
+
 model.add(BatchNormalization(momentum=0.99, 
 							epsilon=0.001, 
 							center=True, 
@@ -117,13 +118,19 @@ model.add(BatchNormalization(momentum=0.99,
                             beta_initializer='zeros', 
                             gamma_initializer='ones', 
                             moving_mean_initializer='zeros', 
+
                             moving_variance_initializer='ones'))
+
+
+
+
 model.add(LSTM(4, return_sequences = True,
                      stateful=False,
                      kernel_initializer='he_normal',
                       activation='tanh',
                       dropout = 0.1 , 
                       recurrent_dropout = 0.1))
+
 model.add(BatchNormalization(momentum=0.99, epsilon=0.001, center=True, 
                                    scale=True, beta_initializer='zeros', gamma_initializer='ones', moving_mean_initializer='zeros', moving_variance_initializer='ones'))
 
@@ -136,7 +143,7 @@ model.add(LSTM(4,
                       recurrent_dropout = 0.1))
 model.add(BatchNormalization(momentum=0.99, epsilon=0.001, center=True, 
                                    scale=True, beta_initializer='zeros', gamma_initializer='ones', moving_mean_initializer='zeros', moving_variance_initializer='ones'))
-"""
+
 model.add(Dense(3, activation='softmax', kernel_initializer = 'he_normal'))
 print (model.summary())
 
@@ -148,16 +155,17 @@ sgd  = optimizers.SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 
 # do not use logcosh as loss value
 # better use binary_crossentropy
-model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'], weighted_metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer='adam' , metrics=['accuracy'], weighted_metrics=['accuracy'])
 print(model.summary())
 
 early_stopping_monitor = EarlyStopping(patience=3)
 
-model.fit(X_train, categoricalTrainY, validation_split=0.10, epochs=30, batch_size=64, callbacks=[early_stopping_monitor])
+model.fit(X_train, categoricalTrainY, validation_split=0.10, epochs=50, batch_size=420, callbacks=[early_stopping_monitor])
 # Final evaluation of the model
 scores = model.evaluate(X_test, categoricalTestY, verbose=1)
-print("Accuracy: %.2f%%" % (scores[1]*100))
-print(scores)
+#print("Accuracy: %.2f%%" % (scores[1]*100))
+#print(scores)
+print(scores[1]*100)
 # print model.predict(X_test)
 
 """

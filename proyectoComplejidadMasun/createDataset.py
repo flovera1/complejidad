@@ -71,6 +71,7 @@ def getCode(thelist):
 		except:
 			element 		= 0
 			totalPOSvalue   = totalPOSvalue 
+
 		
 	return (returnlist, totalPOSvalue)
 
@@ -209,14 +210,14 @@ def main():
 	i           = 0
 	listoflist  = []
 	list0       = []
-	factor      = 1
+	factor      = 50
 	for f in fls:
 		#Guardamos el id del texto
 		#i = i + 1
 		#Obtenemos los tags para f
 		tags = tag(gettext("corp/1/" + f))
 		#Creamos un dicionario con los tags obtenidos
-		d = dict(tags)
+		d1 = dict(tags)
 		#Creamos un string auxiliar con los tags que contenia el texto
 		lists = list(gettext("corp/1/" + f).split(" "))
 		listoflist.append(lists)
@@ -230,11 +231,13 @@ def main():
 	
 		#print(ll)
 		list0.append(ll)
+	
+
 	#corpus 2
 	dirname = "corp/2"
 	fls = os.listdir(dirname)
 	i = 0
-	listoflist  = []
+	listoflist  = []	
 	list1 = []
 	for f in fls:
 		#Guardamos el id del texto
@@ -242,7 +245,7 @@ def main():
 		#Obtenemos los tags para f
 		tags = tag(gettext("corp/2/" + f))
 		#Creamos un dicionario con los tags obtenidos
-		d = dict(tags)
+		d2 = dict(tags)
 		#Creamos un string auxiliar con los tags que contenia el texto
 		lists = list(gettext("corp/2/" + f).split(" "))
 		listoflist.append(lists)
@@ -258,7 +261,7 @@ def main():
 		list1.append(ll)
 
 
-	#corpus 2
+	#corpus 3
 	dirname = "corp/3"
 	fls = os.listdir(dirname)
 	i = 0
@@ -270,7 +273,7 @@ def main():
 		#Obtenemos los tags para f
 		tags = tag(gettext("corp/3/" + f))
 		#Creamos un dicionario con los tags obtenidos
-		d = dict(tags)
+		d3 = dict(tags)
 		#Creamos un string auxiliar con los tags que contenia el texto
 		lists = list(gettext("corp/3/" + f).split(" "))
 		listoflist.append(lists)
@@ -289,24 +292,33 @@ def main():
 	codifiedList0 = []
 	codifiedList1 = []
 	codifiedList2 = []
-	for li in list0:
-		(newlist, totalPOSsub) = getCode(li)
-		for element in newlist:
-			element = element/totalPOSsub
-
-		codifiedList0.append(newlist)
-	for li in list1:
-		(newlist, totalPOSsub) = getCode(li)
+	for li in list0: # lis is a list of pairs (letter, POS)
+		(newlist, totalPOSsub) 	= getCode(li)
+		normalizedlist0			= []
 		for element in newlist:
 			element = element / totalPOSsub
+			roundelement  = round(element, 3)
+			
+			normalizedlist0.append(roundelement)
+		codifiedList0.append(normalizedlist0)
 
-		codifiedList1.append(newlist)
+	for li in list1:
+		(newlist, totalPOSsub)  = getCode(li)
+		normalizedlist1			= []
+		for element in newlist:
+			element = element / totalPOSsub
+			roundelement  = round(element, 3)
+			normalizedlist1.append(roundelement)
+		codifiedList1.append(normalizedlist1)
+
 	for li in list2:
 		(newlist, totalPOSsub) = getCode(li)
+		normalizedlist2			= []
 		for element in newlist:
 			element = element / totalPOSsub
-
-		codifiedList2.append(newlist)
+			roundelemnt  = round(element, 3)
+			normalizedlist2.append(roundelemnt)
+		codifiedList2.append(normalizedlist2)
 
 
 
@@ -369,8 +381,6 @@ def main():
 
 	print(df)
 
-
-	
 
 if __name__ =="__main__":
 	main()

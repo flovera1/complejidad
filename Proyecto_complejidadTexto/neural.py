@@ -69,5 +69,5 @@ model.fit(trainX, categoricalTrainY, nb_epoch=3, batch_size=64)
 # Final evaluation of the model
 scores = model.evaluate(testX, categoricalTestY, verbose=1)
 print("Accuracy: %.2f%%" % (scores[1]*100))
-print(scores
+print(scores)
 #)print model.predict(testX)
