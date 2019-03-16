@@ -18,7 +18,6 @@ def gettext(f):
 	txt = ""
 	for line in fl.readlines():
 		# use regular expressions to replace email addresses, URLs, phone numbers, other numbers
-
 		# email addresses with 'email'
 		processed = line.replace(r'^.+@[^\.].*\.[a-z]{2,}$', 'emailaddress')
 		# webadress
@@ -42,13 +41,10 @@ def gettext(f):
 
 	return txt
 
-
 #Funcion que escribe un archivo con el resultado del pos tag
 def wpos(f,s):
 	fl = open(f,'w')
 	fl.write(s)
-
-
 
 def getCode(thelist):
 	#returnlist
@@ -182,14 +178,20 @@ def calculate_len(codifiedList0):
 
 	return max
 
+def codifeList(list0):
+	codifiedList = []
+	for li in list0: # lis is a list of pairs (letter, POS)
+		(newlist, totalPOSsub) 	= getCode(li)
+		normalizedlist			= []
+		for element in newlist:
+			element 		= element / totalPOSsub
+			roundelement 	= round(element, 3)
+			normalizedlist.append(roundelement)
+		codifiedList.append(normalizedlist)
+	return codifiedList
 
-def main():
-	#script. Main?
-	#Escribimos la primera linea del csv
-	st = "Doc_ID,TAGS,CLASS\n"
+def productionPOS(dirname):
 
-	#Genera una lista con los archivos de la carpeta 1
-	dirname     = "corp/1"
 	fls         = os.listdir(dirname)
 	i           = 0
 	listoflist  = []
@@ -199,11 +201,11 @@ def main():
 		#Guardamos el id del texto
 		#i = i + 1
 		#Obtenemos los tags para f
-		tags = tag(gettext("corp/1/" + f))
+		tags = tag(gettext(dirname + f))
 		#Creamos un dicionario con los tags obtenidos
 		d1 = dict(tags)
 		#Creamos un string auxiliar con los tags que contenia el texto
-		lists = list(gettext("corp/1/" + f).split(" "))
+		lists = list(gettext(dirname + f).split(" "))
 		listoflist.append(lists)
 		# procesar los textos separados
 	for li in listoflist:
@@ -215,112 +217,31 @@ def main():
 	
 		#print(ll)
 		list0.append(ll)
-	
+	return list0
 
-	#corpus 2
-	dirname = "corp/2"
-	fls = os.listdir(dirname)
-	i = 0
-	listoflist  = []	
-	list1 = []
-	for f in fls:
-		#Guardamos el id del texto
-		#i = i + 1
-		#Obtenemos los tags para f
-		tags = tag(gettext("corp/2/" + f))
-		#Creamos un dicionario con los tags obtenidos
-		d2 = dict(tags)
-		#Creamos un string auxiliar con los tags que contenia el texto
-		lists = list(gettext("corp/2/" + f).split(" "))
-		listoflist.append(lists)
-	# procesar los textos separados
-	for li in listoflist:
-		ll = []
-		for j in li:
-			t = nltk.word_tokenize(j)
-			pair = nltk.pos_tag(t)
-			ll.append(next(iter(pair), None))
-	
-		#print(ll)
-		list1.append(ll)
-
-
-	#corpus 3
-	dirname = "corp/3"
-	fls = os.listdir(dirname)
-	i = 0
-	listoflist  = []
-	list2 = []
-	for f in fls:
-		#Guardamos el id del texto
-		#i = i + 1
-		#Obtenemos los tags para f
-		tags = tag(gettext("corp/3/" + f))
-		#Creamos un dicionario con los tags obtenidos
-		d3 = dict(tags)
-		#Creamos un string auxiliar con los tags que contenia el texto
-		lists = list(gettext("corp/3/" + f).split(" "))
-		listoflist.append(lists)
-	# procesar los textos separados
-	for li in listoflist:
-		ll = []
-		for j in li:
-			t = nltk.word_tokenize(j)
-			pair = nltk.pos_tag(t)
-			ll.append(next(iter(pair), None))
-	
-		#print(ll)
-		list2.append(ll)
-
-
-	codifiedList0 = []
-	codifiedList1 = []
-	codifiedList2 = []
-	for li in list0: # lis is a list of pairs (letter, POS)
-		(newlist, totalPOSsub) 	= getCode(li)
-		normalizedlist0			= []
-		for element in newlist:
-			element = element / totalPOSsub
-			roundelement  = round(element, 3)
-			
-			normalizedlist0.append(roundelement)
-		codifiedList0.append(normalizedlist0)
-
-	for li in list1:
-		(newlist, totalPOSsub)  = getCode(li)
-		normalizedlist1			= []
-		for element in newlist:
-			element = element / totalPOSsub
-			roundelement  = round(element, 3)
-			normalizedlist1.append(roundelement)
-		codifiedList1.append(normalizedlist1)
-
-	for li in list2:
-		(newlist, totalPOSsub) = getCode(li)
-		normalizedlist2			= []
-		for element in newlist:
-			element = element / totalPOSsub
-			roundelemnt  = round(element, 3)
-			normalizedlist2.append(roundelemnt)
-		codifiedList2.append(normalizedlist2)
-
-
-
+def main():
+	#script. Main?
+	#Escribimos la primera linea del csv
+	st = "Doc_ID,TAGS,CLASS\n"
+	#Genera una lista con los archivos de la carpeta 1
+	list0 			= productionPOS("corp/1/")
+	list1 			= productionPOS("corp/2/")
+	list2 			= productionPOS("corp/3/")
+	codifiedList0 	= codifeList(list0)
+	codifiedList1 	= codifeList(list1)
+	codifiedList2 	= codifeList(list2)
 	# padding
-	codifiedList0 = padding(codifiedList0, codifiedList0, codifiedList1, codifiedList2)
-	codifiedList1 = padding(codifiedList1, codifiedList0, codifiedList1, codifiedList2)
-	codifiedList2 = padding(codifiedList2, codifiedList0, codifiedList1, codifiedList2)
+	codifiedList0 	= padding(codifiedList0, codifiedList0, codifiedList1, codifiedList2)
+	codifiedList1 	= padding(codifiedList1, codifiedList0, codifiedList1, codifiedList2)
+	codifiedList2 	= padding(codifiedList2, codifiedList0, codifiedList1, codifiedList2)
 	# normalize using minmax
 	#codifiedList0 = normalize(codifiedList0)
 	#codifiedList1 = normalize(codifiedList1)
 	#codifiedList2 = normalize(codifiedList2)
-
-
 	# Add label at the end.
 	# li means the maximum length of the input vector
 	# factor is determined by the expiriments.
 	# the minimum output vector's length would be 3.
-
 	liLocal0 = calculate_len(codifiedList0)
 	liLocal1 = calculate_len(codifiedList1)
 	liLocal2 = calculate_len(codifiedList2)
@@ -328,28 +249,13 @@ def main():
 	#before we were adding a factor that said: (li/factor).
 	#now we obly use 1.
 	#addLabelAtTheEnd(codifiedList0, 1.0, 1)
-
-	
-	li = calculate_len(codifiedList1)
+	#li = calculate_len(codifiedList1)
 	#addLabelAtTheEnd(codifiedList1, 2.0, 1)
-
-
-	
-	li = calculate_len(codifiedList2)
+	#li = calculate_len(codifiedList2)
 	#addLabelAtTheEnd(codifiedList2, 3.0, 1)
-	
 	addLabelAtTheEnd2(codifiedList0, 1)
 	addLabelAtTheEnd2(codifiedList1, 2)
 	addLabelAtTheEnd2(codifiedList2, 3)
-
-
-
-
-
-
-
-
-
 	#codifiedList0 = addLabelAtTheEnd(codifiedList0, 1.0, factor)#
 	#codifiedList1 = addLabelAtTheEnd(codifiedList1, 2.0, factor)#
 	#codifiedList2 = addLabelAtTheEnd(codifiedList2, 3.0, factor)#
@@ -358,25 +264,13 @@ def main():
 	codifiedList1 = addLabelAtTheEnd2(codifiedList1, 2.0)#
 	codifiedList2 = addLabelAtTheEnd2(codifiedList2, 3.0)#
 	"""
-
 	# Concatenate all the lists in one big list
 	concatenated  = concatenateLists(codifiedList0, codifiedList1, codifiedList2)
-
-
-		
-		
-	
-	
-
 	#transform to dataframes:
-	df 			= transformToDataFrame(concatenated)
-
-	df_shuffled = df.sample(frac = 1)
-
+	df 			  = transformToDataFrame(concatenated)
+	df_shuffled   = df.sample(frac = 1)
 	print(df_shuffled)
 	df_shuffled.to_csv("outcome.csv", index=False) 
-
-
 	print(df)
 
 
