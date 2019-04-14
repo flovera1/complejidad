@@ -247,7 +247,7 @@ def main():
 	liLocal2 = calculate_len(codifiedList2)
 	li 		 = max(liLocal0, liLocal1, liLocal2)
 	#before we were adding a factor that said: (li/factor).
-	#now we obly use 1.
+	#now we only use 1.
 	#addLabelAtTheEnd(codifiedList0, 1.0, 1)
 	#li = calculate_len(codifiedList1)
 	#addLabelAtTheEnd(codifiedList1, 2.0, 1)

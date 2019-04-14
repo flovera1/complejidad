@@ -19,8 +19,6 @@ import keras.backend as K
 
 import matplotlib.pyplot as plt
 
-from _perceptron import Perceptron
-
 from sklearn import datasets, linear_model
 import matplotlib.pyplot as plt
 
@@ -43,8 +41,17 @@ from sklearn.ensemble import RandomForestClassifier
 # weight regularization
 from keras.regularizers import L1L2
 
+#Bidirectional training
+from keras.layers import Bidirectional 
+# Preprocessing for the input data.
+from sklearn import preprocessing
 
+# for conv1d
+from keras import layers
 
+# for the f1_score
+#from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report, confusion_matrix
+from sklearn import metrics
 
 
 def main():
@@ -60,30 +67,43 @@ def main():
   # Se desordenan las instancias
   dataframe                         = dataframe.sample(frac=1)
   X 				 				                = np.array(dataframe.drop(['179'], axis = 1))
+  #
+  #
+  # In here you need to normalize the input vector. For
+  #
+  #
+
+
+  X                                 = preprocessing.normalize(X, norm='l2')
   y 				 				                = np.array(dataframe['179'])
 
   
-  X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size = 0.20, random_state = 42)
+  X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size = 0.05, random_state = 42)
   categoricalTrainY 				        = to_categorical(y_train, num_classes=None)
   categoricalTestY  				        = to_categorical(y_test, num_classes=None)
   embedding_vector_length           = 179
   model                             = Sequential()
   model.add(Embedding(top_words, embedding_vector_length, input_length=179))
+
+  # define LSTM with Bidirectional layer at the beginning.
+
+
   #LSTM 1
-  model.add(LSTM(4, return_sequences = True, stateful=False, kernel_initializer='random_uniform', activation='relu', dropout = 0.20, recurrent_dropout = 0.20, inner_activation='hard_sigmoid', bias_regularizer=L1L2(l1=0.01, l2=0.01)))
+  # adding the Conv1 decrease the accuracy.
+  model.add(layers.Conv1D(22, 5, activation='relu'))
+  model.add(Bidirectional(LSTM(20, return_sequences = True, stateful=False, kernel_initializer='random_uniform', activation='softmax', dropout = 0.20, recurrent_dropout = 0.20, inner_activation='hard_sigmoid', bias_regularizer=L1L2(l1=0.01, l2=0.01))))
   # Batch normalization
   model.add(BatchNormalization(momentum=0.99, epsilon=0.001, center=True, scale=True, beta_initializer='zeros', gamma_initializer='ones', moving_mean_initializer='zeros', moving_variance_initializer='ones'))
   #LSTM 2
-  model.add(LSTM(4, return_sequences = True, stateful=False, kernel_initializer='random_uniform', activation='relu', dropout = 0.20, recurrent_dropout = 0.20, inner_activation='hard_sigmoid', bias_regularizer=L1L2(l1=0.01, l2=0.01)))
+  model.add(Bidirectional(LSTM(20, return_sequences = True, stateful=False, kernel_initializer='random_uniform', activation='softmax', dropout = 0.20, recurrent_dropout = 0.20, inner_activation='hard_sigmoid', bias_regularizer=L1L2(l1=0.01, l2=0.01))))
   # Batch normalization
   model.add(BatchNormalization(momentum=0.99, epsilon=0.001, center=True, scale=True, beta_initializer='zeros', gamma_initializer='ones', moving_mean_initializer='zeros', moving_variance_initializer='ones'))
   #LSTM 3
-  model.add(LSTM(4, stateful=False, kernel_initializer='random_uniform', activation='softmax', dropout = 0.20 , recurrent_dropout = 0.20, inner_activation='hard_sigmoid', bias_regularizer=L1L2(l1=0.01, l2=0.01)))
+  model.add(Bidirectional(LSTM(20, stateful=False, kernel_initializer='random_uniform', activation='softmax', dropout = 0.20 , recurrent_dropout = 0.20, inner_activation='hard_sigmoid', bias_regularizer=L1L2(l1=0.01, l2=0.01))))
   # Batch normalizaion
   model.add(BatchNormalization(momentum=0.99, epsilon=0.001, center=True, scale=True, beta_initializer='zeros', gamma_initializer='ones', moving_mean_initializer='zeros', moving_variance_initializer='ones'))  
   #model.add(Dropout(0.2))
   model.add(Dense(4, activation='softmax', kernel_initializer = 'random_uniform'))
-  print (model.summary())
 
   opt   = optimizers.RMSprop(lr=0.001, rho=0.9, epsilon=1e-08, decay=0.0)
   #opt2  = optimizers.Adam(lr=0.00001)
@@ -98,10 +118,10 @@ def main():
   # we used: mean_squared_error with sgd
   # mean_absolute_error
 
-  model.compile(loss = 'binary_crossentropy', optimizer = adam, metrics = ['accuracy'], weighted_metrics = ['accuracy'])
+  model.compile(loss = 'binary_crossentropy', optimizer = opt4, metrics = ['accuracy'], weighted_metrics = ['accuracy'])
   #print(model.summary())
 
-  earlystop = EarlyStopping(monitor='val_loss', min_delta=0.0001, patience=80,  verbose=1, mode='min')
+  earlystop = EarlyStopping(monitor='acc', min_delta=0.0001, patience=80,  verbose=1, mode='min')
   callbacks_list = [earlystop]
 
   model.fit(X_train, categoricalTrainY, validation_split = 0.5, epochs = n_epochs, batch_size = batch_size, callbacks = callbacks_list)
@@ -111,30 +131,35 @@ def main():
   print(scores)
   print(scores[1]*100)
 
-
 '''
-  seed = 7
-  models = []
-  models.append(('LR', LogisticRegression()))
-  models.append(('DT', DecisionTreeClassifier()))
-  models.append(('GNB', GaussianNB()))
-  models.append(('RF', RandomForestClassifier()))
-  models.append(('SVM', svm.SVC()))
-  models.append(('Clustering', KMeans(n_clusters=10, random_state=0)))
-
-  # evaluate each model in turn
-  results = []
-  names = []
-  scoring = 'accuracy'
-  for name, model in models:
-      kfold = model_selection.KFold(n_splits=10, random_state = seed)
-      cv_results = model_selection.cross_val_score(model, X, y, cv = kfold, scoring = scoring)
-      results.append(cv_results)
-      names.append(name)
-      msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
-      print(msg)
+  print("**************** More scores **************")
+  categoricalTestY  = np.array(categoricalTestY)
+  y_pred_class      = np.array(model.predict(X_test))
+  # calculate accuracy
+  print("(0) Recomputation of test accuracy")
+  print(metrics.accuracy_score(categoricalTestY, y_pred_class))
+  
+  #Null accuracy: accuracy that could be achieved by always predicting the most frequent class
+  
+  # Examine the class distribution of the testing set (using a Pandas Series method)
+  print("(1) Distribution testing set: ")
+  print(categoricalTestY.value_counts().head(1) / len(categoricalTestY))
+  # Comparing the true and predicted response values
+  print("(2) True and predicted response values")
+  print('True:', categoricalTestY.value_countss[0:25])
+  print('False:', y_pred_class[0:25])
 '''
 
+
+  #categ1oricalTestY = list(categoricalTestY)
+  #y_pred           = list(y_pred)
+  #print("the lists!")
+  #print(categoricalTestY)
+  #print(y_pred)
+  #print(f1_score(categoricalTestY, y_pred, average = "macro"))
+  #print(precision_score(categoricalTestY, y_pred, average = "macro"))
+  #print(recall_score(categoricalTestY, y_pred, average = "macro"))    
+  #print(f1_score(categoricalTestY, y_pred, average = 'macro') )
 
 
 if __name__ =="__main__":
